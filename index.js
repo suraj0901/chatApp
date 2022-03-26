@@ -1,20 +1,29 @@
-const express = require('express');
+import express from 'express';
+import { resolve } from 'path';
+import { add, get } from './util/database.js';
+
 const app = express();
 const port = 3000;
-const path = require('path');
 
 app.use(express.static('static'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve('pages/index.html'));
+  res.sendFile(resolve('pages/index.html'));
 });
 
-app.post('/postMessage', (req, res) => {
+app.get('/message', (req, res) => {
+  const [success, error] = get();
+  if (error) res.status(500);
+  else res.send(success);
+});
+
+app.post('/message', (req, res) => {
   const { message } = req.body;
-  console.log(message);
-  res.status(200);
+  const [success, error] = add(message);
+  if (error) res.status(500);
+  else res.status(200);
 });
 
 app.listen(port, () => {

@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="./style.css" />
-<form action="/postMessage" method="POST">
+<form action="/message" method="POST">
   <textarea
     name="message"
     id="chat"
@@ -9,3 +9,31 @@
   ></textarea>
   <button type="submit">Send</button>
 </form>
+
+<section id="container"></section>
+
+<script>
+  const messageElement = ({ name, message }) => {
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.innerHTML = `
+    <p>${name}</p>
+    <h3>${message}</h3>
+  `;
+  };
+
+  const main = async () => {
+    const container = document.getElementById('container');
+    try {
+      const messages = await fetch('/message');
+      messages.forEach((message) => {
+        const div = messageElement(message);
+        container.append(div);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  main();
+</script>
