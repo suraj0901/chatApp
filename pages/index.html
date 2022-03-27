@@ -8,70 +8,48 @@
     <title>ChatApp</title>
   </head>
   <body>
-    <form action="/message" method="POST">
-      <section>
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" />
-      </section>
-      <textarea
-        name="message"
-        id="message"
-        cols="30"
-        rows="3"
-        placeholder="...message"
-      ></textarea>
-      <button type="submit">Send</button>
-    </form>
 
     <section id="container"></section>
+
+    <form id="form">
+      <input name="message" id="input" />
+      <button type="submit">&gt;</button>
+    </form>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();
       const form = document.getElementById('form');
-      const message = document.getElementById('message');
+      const message = document.getElementById('input');
+      const container = document.getElementById('container');
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (message.value) {
-          socket.emit('chat message', message.value);
+          socket.emit('message', message.value);
           message.value = '';
         }
       });
 
-      const messageElement = ({ name, message }) => {
+      const addMessage = ({ name, message }) => {
         const div = document.createElement('div');
         div.className = 'message';
         div.innerHTML = `
         <p>${name}</p>
         <h3>${message}</h3>
       `;
-        return div;
+        container.appendChild(item);
       };
 
-      socket.on('newMessage', function (msg) {
-        const container = document.getElementById('container');
-        const item = messageElement(msg);
-        container.appendChild(item);
+      socket.on('allPrevMessage', function (msgs) {
+        for (const message of msgs) addMessage(message);
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      const main = async () => {
-        try {
-          let data = await fetch('/message');
-          data = await data.json();
-          const messages = await JSON.parse(data);
-
-          for (const message of messages) {
-            const div = messageElement(message);
-            container.append(div);
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      };
-
-      main();
+      socket.on('newMessage', function (msg) {
+        addMessage(msg);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
     </script>
   </body>
 </html>

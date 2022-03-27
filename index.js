@@ -31,11 +31,21 @@ const addMessage = async (msg) => {
 
 io.on('connection', async (socket) => {
   await sendAllMessages();
-  socket.on('newMessage', addMessage);
+  socket.on('message', addMessage);
 });
 
 app.get('/', (req, res) => {
+  const { name, password } = req.body;
   res.sendFile(resolve('pages/index.html'));
+});
+
+app.post('/auth', async (req, res) => {
+  const { name, password } = req.body;
+  const user = await users.find(name, password);
+  if (user) {
+    res.body.token = req.body;
+    res.redirect('/');
+  } else res.send('Worng password');
 });
 
 server.listen(port, () => {
