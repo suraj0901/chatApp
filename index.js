@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import { resolve } from 'path';
-import { add, get } from './util/database.js';
+import { add, get, users } from './util/database.js';
 import { Server } from 'socket.io';
 
 const app = express();
@@ -34,18 +34,12 @@ io.on('connection', async (socket) => {
   socket.on('message', addMessage);
 });
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   const { name, password } = req.body;
-  res.sendFile(resolve('pages/index.html'));
-});
-
-app.post('/auth', async (req, res) => {
-  const { name, password } = req.body;
-  const user = await users.find(name, password);
-  if (user) {
-    res.body.token = req.body;
-    res.redirect('/');
-  } else res.send('Worng password');
+  if (!(name && password)) res.sendFile(resolve('pages/auth.html'));
+  const user = users.find(name, password);
+  if (user) res.sendFile(resolve('pages/index.html'));
+  else res.send('Worng password');
 });
 
 server.listen(port, () => {

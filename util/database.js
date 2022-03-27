@@ -30,3 +30,22 @@ export const get = async () => {
     return [success, error];
   }
 };
+
+export const users = () => {
+  const list = {
+    'Mohit Pandey': 'great#667',
+    'Suraj Yadav': 'smart#898',
+    'Akash Jaiswal': 'gota#323',
+    'Suraj Jha': 'owner#7890',
+    'Prince Dubey': 'charming#486',
+  };
+  return {
+    find(name, password) {
+      const pass = list.get(name, false);
+      if (pass && password === pass) return true;
+      return false;
+    },
+  };
+};
+
+
