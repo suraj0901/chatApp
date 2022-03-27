@@ -1,11 +1,15 @@
 <link rel="stylesheet" href="./style.css" />
-<form action="/message" method="POST">
+<form action="/message" method="POST" target="_parent">
+  <section>
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" />
+  </section>
   <textarea
     name="message"
     id="chat"
     cols="30"
     rows="3"
-    placeholder="......"
+    placeholder="...message"
   ></textarea>
   <button type="submit">Send</button>
 </form>
@@ -25,7 +29,7 @@
   const main = async () => {
     const container = document.getElementById('container');
     try {
-      const messages = await fetch('/message');
+      const messages = JSON.parse(await fetch('/message'));
       messages.forEach((message) => {
         const div = messageElement(message);
         container.append(div);

@@ -10,18 +10,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
+  console.log('hello world');
   res.sendFile(resolve('pages/index.html'));
 });
 
-app.get('/message', (req, res) => {
-  const [success, error] = get();
+app.get('/message', async (req, res) => {
+  const [success, error] = await get();
   if (error) res.status(500);
   else res.send(success);
 });
 
-app.post('/message', (req, res) => {
-  const { message } = req.body;
-  const [success, error] = add(message);
+app.post('/message', async (req, res) => {
+  console.log(req.body);
+  const [success, error] = await add(req.body);
   if (error) res.status(500);
   else res.status(200);
 });

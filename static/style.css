@@ -5,6 +5,7 @@
 button {
   padding: 0.5rem 1rem;
   font-size: 10px;
+  font-weight: 800;
   background-color: green;
   color: white;
   border: none;
@@ -13,8 +14,10 @@ button {
 
 form {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   max-width: 300px;
+  gap: 1rem;
   margin: auto;
 }
