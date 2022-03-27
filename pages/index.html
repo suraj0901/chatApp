@@ -1,43 +1,77 @@
-<link rel="stylesheet" href="./style.css" />
-<form action="/message" method="POST" target="_parent">
-  <section>
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" />
-  </section>
-  <textarea
-    name="message"
-    id="chat"
-    cols="30"
-    rows="3"
-    placeholder="...message"
-  ></textarea>
-  <button type="submit">Send</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>ChatApp</title>
+  </head>
+  <body>
+    <form action="/message" method="POST">
+      <section>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" />
+      </section>
+      <textarea
+        name="message"
+        id="message"
+        cols="30"
+        rows="3"
+        placeholder="...message"
+      ></textarea>
+      <button type="submit">Send</button>
+    </form>
 
-<section id="container"></section>
+    <section id="container"></section>
 
-<script>
-  const messageElement = ({ name, message }) => {
-    const div = document.createElement('div');
-    div.className = 'message';
-    div.innerHTML = `
-    <p>${name}</p>
-    <h3>${message}</h3>
-  `;
-  };
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const form = document.getElementById('form');
+      const message = document.getElementById('message');
 
-  const main = async () => {
-    const container = document.getElementById('container');
-    try {
-      const messages = JSON.parse(await fetch('/message'));
-      messages.forEach((message) => {
-        const div = messageElement(message);
-        container.append(div);
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (message.value) {
+          socket.emit('chat message', message.value);
+          message.value = '';
+        }
       });
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
-  main();
-</script>
+      const messageElement = ({ name, message }) => {
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerHTML = `
+        <p>${name}</p>
+        <h3>${message}</h3>
+      `;
+        return div;
+      };
+
+      socket.on('newMessage', function (msg) {
+        const container = document.getElementById('container');
+        const item = messageElement(msg);
+        container.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      const main = async () => {
+        try {
+          let data = await fetch('/message');
+          data = await data.json();
+          const messages = await JSON.parse(data);
+
+          for (const message of messages) {
+            const div = messageElement(message);
+            container.append(div);
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      };
+
+      main();
+    </script>
+  </body>
+</html>
