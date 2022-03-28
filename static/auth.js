@@ -1,82 +1,80 @@
-const auth = document.getElementById('auth');
-const authMsg = document.getElementById('authMsg');
-const _name = document.getElementById('name');
-const password = document.getElementById('password');
+const $ = (name) => document.getElementById(name);
+const auth = $('auth');
+const authMsg = $('authMsg');
+const _name = $('name');
+const password = $('password');
+const form = $('form');
+const message = $('input');
+const container = $('container');
 
-const varifyUser = async (name, password) => {
-  try {
-    const res = await fetch('/auth', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, password }),
+const { io } = import('https://cdn.socket.io/4.4.1/socket.io.esm.min.js');
+
+const socket = io({
+  autoConnect: false,
+});
+
+const intit = () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    socket.token = { token };
+    socket.connect();
+  } else {
+    auth.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (_name.value && password.value) {
+        socket.auth = {
+          username: _name.value,
+          password: password.value,
+        };
+        socket.connect();
+        _name.value = '';
+        password.value = '';
+      }
     });
-    if (res.ok) {
-      return await res.json();
-    }
-    return false;
-  } catch (err) {
-    console.log(err);
   }
 };
 
-auth.addEventListener('submit', async (e) => {
+intit();
+
+function addMessage({ username, message }) {
+  const div = document.createElement('div');
+  div.className = 'msgbox';
+  div.innerHTML = `
+  <p class="name">${username}</p>
+  <p class="msg">${message}</p>
+  `;
+  container.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+form.addEventListener('submit', function (e) {
   e.preventDefault();
-  if (_name.value && password.value) {
-    const result = await varifyUser(_name.value, password.value);
-    if (result) {
-      _name.value = '';
-      password.value = '';
-      await init(result);
-      auth.classList.toggle('hide');
-    } else {
-      authMsg.textContent = `Wrong Crendentials`;
-      authMsg.classList.toggle('hide');
-    }
+  if (message.value) {
+    socket.emit('message', {
+      token: localStorage.getItem('token'),
+      message: message.value,
+    });
+    message.value = '';
   }
 });
 
-async function inti(token) {
-  const { io } = import('https://cdn.socket.io/4.4.1/socket.io.esm.min.js');
+socket.on('allPrevMessage', function (msgs) {
+  for (const message of msgs) addMessage(message);
+});
 
-  const socket = io({
-    auth: {
-      token,
-    },
-  });
+socket.on('connect', () => {
+  auth.classList.toggle('hide');
+});
 
-  const form = document.getElementById('form');
-  const message = document.getElementById('input');
-  const container = document.getElementById('container');
+socket.on('connect_error', (err) => {
+  authMsg.textContent = `Wrong Crendentials`;
+  authMsg.classList.toggle('hide');
+});
 
-  const addMessage = ({ name, message }) => {
-    const div = document.createElement('div');
-    div.className = 'msgbox';
-    div.innerHTML = `
-    <p class="name">${name}</p>
-    <p class="msg">${message}</p>
-  `;
-    container.appendChild(item);
-  };
+socket.on('session', ({ token, username }) => {
+  socket.auth = { token };
+  localStorage.setItem('token', token);
+  socket.username = username;
+});
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (message.value) {
-      socket.emit('message', {
-        token: localStorage.getItem('token'),
-        message: message.value,
-      });
-      message.value = '';
-    }
-  });
-
-  socket.on('allPrevMessage', function (msgs) {
-    for (const message of msgs) addMessage(message);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-
-  socket.on('newMessage', function (msg) {
-    addMessage(msg);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-}
+socket.on('newMessage', addMessage);
