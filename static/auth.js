@@ -25,6 +25,8 @@ auth.addEventListener('submit', async (e) => {
   if (_name.value && password.value) {
     const result = await varifyUser(_name.value, password.value);
     if (result) {
+      _name.value = '';
+      password.value = '';
       await init(result);
       auth.classList.toggle('hide');
     } else {

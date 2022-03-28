@@ -31,6 +31,8 @@ export const get = async () => {
   }
 };
 
+export const session = {};
+
 export const users = () => {
   const list = {
     'Mohit Pandey': 'great#667',
@@ -48,7 +50,8 @@ export const users = () => {
           .fill(0)
           .map((x) => Math.random().toString(36).charAt(2))
           .join('');
-        return token;
+        session[token] = name;
+        return true;
       }
       return false;
     },
