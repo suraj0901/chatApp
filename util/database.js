@@ -7,10 +7,10 @@ export const add = async (newData) => {
   let error = false,
     success = false;
   try {
-    const file = await readFileSync(dbfile, 'utf8');
+    const file = readFileSync(dbfile, 'utf8');
     const db = await JSON.parse(file);
     db.push(newData);
-    await writeFileSync(dbfile, JSON.stringify(db));
+    writeFileSync(dbfile, JSON.stringify(db));
     success = true;
   } catch (err) {
     error = err;
@@ -39,13 +39,18 @@ export const users = () => {
     'Suraj Jha': 'owner#7890',
     'Prince Dubey': 'charming#486',
   };
+
   return {
-    find(name, password) {
+    find({ name, password }) {
       const pass = list.get(name, false);
-      if (pass && password === pass) return true;
+      if (pass && password === pass) {
+        const token = Array(64)
+          .fill(0)
+          .map((x) => Math.random().toString(36).charAt(2))
+          .join('');
+        return token;
+      }
       return false;
     },
   };
 };
-
-

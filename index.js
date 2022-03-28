@@ -12,6 +12,10 @@ const port = 3000;
 app.use(express.static('static'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  next();
+});
 
 const sendAllMessages = async () => {
   const [success, error] = await get();
@@ -22,9 +26,10 @@ const sendAllMessages = async () => {
 };
 
 const addMessage = async (msg) => {
-  const [success, error] = await add(req.body);
-  if (error) console.log(error);
-  else {
+  const [success, error] = await add(msg);
+  if (error) {
+    console.log(error);
+  } else if (success) {
     io.emit('newMessage', msg);
   }
 };
@@ -35,11 +40,14 @@ io.on('connection', async (socket) => {
 });
 
 app.get('/', async (req, res) => {
+  res.sendFile(resolve('pages/index.html'));
+});
+
+app.get('/auth', async (req, res) => {
   const { name, password } = req.body;
-  if (!(name && password)) res.sendFile(resolve('pages/auth.html'));
-  const user = users.find(name, password);
-  if (user) res.sendFile(resolve('pages/index.html'));
-  else res.send('Worng password');
+  const token = users.find(req.body);
+  if (token) res.json({ token });
+  else res.send("Worng token don't try to hack dude");
 });
 
 server.listen(port, () => {
