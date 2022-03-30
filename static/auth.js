@@ -13,38 +13,23 @@ const socket = io({
   autoConnect: false,
 });
 
-const intit = () => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    socket.token = { token };
-    socket.connect();
-  } else {
-    auth.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (_name.value && password.value) {
-        socket.auth = {
-          username: _name.value,
-          password: password.value,
-        };
-        socket.connect();
-        _name.value = '';
-        password.value = '';
-      }
-    });
-  }
-};
-
-intit();
-
-function addMessage({ username, message }) {
-  const div = document.createElement('div');
-  div.className = 'msgbox';
-  div.innerHTML = `
-  <p class="name">${username}</p>
-  <p class="msg">${message}</p>
-  `;
-  container.appendChild(item);
-  window.scrollTo(0, document.body.scrollHeight);
+const token = localStorage.getItem('token');
+if (token) {
+  socket.token = { token };
+  socket.connect();
+} else {
+  auth.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (_name.value && password.value) {
+      socket.auth = {
+        username: _name.value,
+        password: password.value,
+      };
+      socket.connect();
+      _name.value = '';
+      password.value = '';
+    }
+  });
 }
 
 form.addEventListener('submit', function (e) {
@@ -57,6 +42,17 @@ form.addEventListener('submit', function (e) {
     message.value = '';
   }
 });
+
+function addMessage({ username, message }) {
+  const div = document.createElement('div');
+  div.className = 'msgbox';
+  div.innerHTML = `
+  <p class="name">${username}</p>
+  <p class="msg">${message}</p>
+  `;
+  container.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+}
 
 socket.on('allPrevMessage', function (msgs) {
   for (const message of msgs) addMessage(message);

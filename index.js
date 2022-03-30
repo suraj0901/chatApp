@@ -1,48 +1,19 @@
-import express from 'express';
-import http from 'http';
+import { createServer } from 'http';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { authenticateUser, addMessage, getMessages } from './lib/util.js';
-import { Server } from 'socket.io';
+import io_init from './lib/socket.js';
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
 const port = 3000;
-const session = {};
-
-app.use(express.static('static'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (token) {
-    const username = session.get(token, false);
-    if (!username) return next(new Error('User is unauthorised'));
-    socket.token = token;
-    socket.username = username;
-    return next();
+const server = createServer(async (req, res) => {
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    const file = readFileSync(resolve('pages/index.html'));
+    res.write(file);
+    res.end();
   }
-  const token = authenticateUser(socket.handshake.auth);
-  if (!token) return next(new Error('Wrong Crendentials'));
-  session[token] = socket.handshake.auth.username;
-  session.token = token;
-  session.username = username;
-  next();
 });
 
-io.on('connection', async (socket) => {
-  await getMessages(socket);
-  socket.emit('session', {
-    token: socket.token,
-    username: socket.username,
-  });
-  socket.on('message', addMessage);
-  socket.on('disconnect', () => delete session[token]);
-});
-
-app.get('/', async (req, res) => {
-  res.sendFile(resolve('pages/index.html'));
-});
+io_init(server);
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
