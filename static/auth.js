@@ -7,7 +7,7 @@ const form = $('form');
 const message = $('input');
 const container = $('container');
 
-const { io } = import('https://cdn.socket.io/4.4.1/socket.io.esm.min.js');
+const { io } = await import('https://cdn.socket.io/4.4.1/socket.io.esm.min.js');
 
 const socket = io({
   autoConnect: false,
