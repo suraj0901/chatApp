@@ -1,20 +1,21 @@
-import { createServer } from 'http';
-import { readFileSync } from 'fs';
+import express from 'express';
+import http from 'http';
 import { resolve } from 'path';
 import io_init from './lib/socket.js';
 
+const app = express();
+const server = http.createServer(app);
 const port = 3000;
-const server = createServer(async (req, res) => {
-  if (req.method === 'GET' && req.url === '/') {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    const file = readFileSync(resolve('pages/index.html'));
-    res.write(file);
-    res.end();
-  }
-});
 
+app.use(express.static('static'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 io_init(server);
+
+app.get('/', async (req, res) => {
+  res.sendFile(resolve('pages/index.html'));
+});
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
