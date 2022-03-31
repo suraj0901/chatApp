@@ -36,6 +36,7 @@ form.addEventListener('submit', function (e) {
   e.preventDefault();
   if (message.value) {
     socket.emit('message', {
+      username: localStorage.getItem('username'),
       message: message.value,
     });
     message.value = '';
@@ -62,14 +63,21 @@ socket.on('connect', () => {
   auth.classList.toggle('hide');
 });
 
+socket.on('disconnect', () => {
+  localStorage.removeItem('token');
+  console.log('disconnect');
+});
+
 socket.on('connect_error', (err) => {
   authMsg.textContent = `Wrong Crendentials`;
   authMsg.classList.toggle('hide');
 });
 
-socket.on('session', ({ token }) => {
+socket.on('session', ({ token, username }) => {
+  console.log('got session object');
   socket.auth = { token };
   localStorage.setItem('token', token);
+  localStorage.setItem('username', username);
 });
 
 socket.on('newMessage', addMessage);
