@@ -15,7 +15,7 @@ const socket = io({
 
 const token = localStorage.getItem('token');
 if (token) {
-  socket.token = { token };
+  socket.auth = { token };
   socket.connect();
 } else {
   auth.addEventListener('submit', async (e) => {
@@ -36,7 +36,6 @@ form.addEventListener('submit', function (e) {
   e.preventDefault();
   if (message.value) {
     socket.emit('message', {
-      token: localStorage.getItem('token'),
       message: message.value,
     });
     message.value = '';
@@ -59,6 +58,7 @@ socket.on('allPrevMessage', function (msgs) {
 });
 
 socket.on('connect', () => {
+  console.log('connection established');
   auth.classList.toggle('hide');
 });
 
@@ -67,10 +67,9 @@ socket.on('connect_error', (err) => {
   authMsg.classList.toggle('hide');
 });
 
-socket.on('session', ({ token, username }) => {
+socket.on('session', ({ token }) => {
   socket.auth = { token };
   localStorage.setItem('token', token);
-  socket.username = username;
 });
 
 socket.on('newMessage', addMessage);
