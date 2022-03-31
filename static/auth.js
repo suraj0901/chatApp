@@ -50,7 +50,7 @@ function addMessage({ username, message }) {
   <p class="name">${username}</p>
   <p class="msg">${message}</p>
   `;
-  container.appendChild(item);
+  container.appendChild(div);
   window.scrollTo(0, document.body.scrollHeight);
 }
 
@@ -70,6 +70,7 @@ socket.on('disconnect', () => {
 
 socket.on('connect_error', (err) => {
   authMsg.textContent = `Wrong Crendentials`;
+  localStorage.removeItem('token');
   authMsg.classList.toggle('hide');
 });
 
