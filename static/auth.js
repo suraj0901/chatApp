@@ -66,11 +66,11 @@ socket.on('connect', () => {
 socket.on('disconnect', () => {
   localStorage.removeItem('token');
   console.log('disconnect');
+  socket.disconnect();
 });
 
 socket.on('connect_error', (err) => {
   authMsg.textContent = `Wrong Crendentials`;
-  localStorage.removeItem('token');
   authMsg.classList.toggle('hide');
 });
 
