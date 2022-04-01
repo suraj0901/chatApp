@@ -5,6 +5,7 @@ const _name = $('name');
 const password = $('password');
 const form = $('form');
 const message = $('input');
+const authContainer = $('authContainer');
 const container = $('container');
 
 const { io } = await import('https://cdn.socket.io/4.4.1/socket.io.esm.min.js');
@@ -15,7 +16,7 @@ const socket = io({
 
 const token = localStorage.getItem('token');
 if (token) {
-  socket.auth = { token };
+  socket.auth = { token, username: localStorage.getItem('username') };
   socket.connect();
 } else {
   auth.addEventListener('submit', async (e) => {
@@ -60,7 +61,7 @@ socket.on('allPrevMessage', function (msgs) {
 
 socket.on('connect', () => {
   console.log('connection established');
-  auth.classList.toggle('hide');
+  authContainer.classList.toggle('hide');
 });
 
 socket.on('disconnect', () => {
