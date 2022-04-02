@@ -43,24 +43,30 @@ form.addEventListener("submit", function (e) {
     socket.emit("message", {
       username: localStorage.getItem("username"),
       message: message.value,
+      time: new Date().toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      }),
     });
     message.value = "";
   }
 });
 
-function addMessage({ username, message }) {
+function addMessage({ username, message, time }) {
   const div = document.createElement("div");
-  div.className = "msgbox";
+  const isSlef = localStorage.getItem("username") === username;
+  div.className = `msgbox ${isSlef ? "self" : ""}`;
   div.innerHTML = `
-  <p class="name">${username}</p>
-  <p class="msg">${message}</p>
+  ${isSlef ? "" : `<div class="name">${username} </div>`}
+  <p class="msg">${message}   <sub>${time}</sub></p>
   `;
   container.appendChild(div);
-  window.scrollTo(0, document.body.scrollHeight);
 }
 
 socket.on("allPrevMessage", function (msgs) {
   for (const message of msgs) addMessage(message);
+  window.scrollTo(0, document.body.scrollHeight);
 });
 
 socket.on("connect", () => {
@@ -92,4 +98,7 @@ socket.on("session", ({ token, username }) => {
   localStorage.setItem("username", username);
 });
 
-socket.on("newMessage", addMessage);
+socket.on("newMessage", (msg) => {
+  addMessage(msg);
+  window.scrollTo(0, document.body.scrollHeight);
+});
