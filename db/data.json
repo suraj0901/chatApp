@@ -1,8 +1,1 @@
-[
-  {
-    "username": "ChatDefault",
-    "message": "This is the default message of the system (In Dev phase)",
-    "time": "3:52 PM"
-  },
-  { "username": "Suraj Jha", "message": "Hello guys", "time": "4:22 PM" }
-]
+[{"username":"ChatDefault","message":"This is the default message of the system (In Dev phase)","time":"3:52 PM"},{"username":"Suraj Jha","message":"Hello guys","time":"4:22 PM"},{"username":"Suraj Jha","message":"new day 2","time":"2:55 PM"},{"username":"Suraj Jha","message":"dadakjdmam","time":"2:58 PM"},{"username":"Akash Jaiswal","message":"hello","time":"3:01 PM"},{"username":"Mohit Pandey","message":"new day 2343","time":"3:03 PM"},{"username":"Mohit Pandey","message":"token","time":"3:04 PM"}]
